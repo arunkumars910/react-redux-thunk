@@ -1,24 +1,23 @@
 import axios from "axios";
-import React, { useState } from "react";
+import React from "react";
 import { connect } from "react-redux";
-import store, {
+import {
   COUNTER_DECREMENT,
   COUNTER_INCREMENT,
   POP,
   PUSH,
+  SET_DATA,
 } from "../store";
 
 const ReactReduxCounter = (props) => {
-  const [data, setData] = useState({});
+  // const [data, setData] = useState({});
 
-  const getData = () => {
-    console.log("inside getData", data.length);
-
-    axios.get(`https://jsonplaceholder.typicode.com/posts`).then((result) => {
-      console.log("Data fetched", result.data);
-      props.setData(result.data);
-    });
-  };
+  // const getData = () => {
+  //   axios.get(`https://jsonplaceholder.typicode.com/posts`).then((result) => {
+  //     console.log("Data fetched", result.data);
+  //     props.setData(result.data);
+  //   });
+  // };
 
   const removeData = () => {
     props.removeData();
@@ -32,7 +31,8 @@ const ReactReduxCounter = (props) => {
       <button onClick={props.decrement}>decrement</button>
       <button onClick={props.push}>push</button>
       <button onClick={props.pop}>pop</button>
-      <button onClick={getData}>getData</button>
+      {/* <button onClick={getData}>getData</button> */}
+      <button onClick={props.setData}>getData</button>
       <button onClick={removeData}>removeData</button>
       {props.data.length > 0 &&
         props.data.map((x, i) => <div key={i}>{x.title}</div>)}
@@ -45,6 +45,17 @@ const mapStateToProps = (state) => {
     count: state.counter.count,
     test: state.tester,
     data: state.storage.data || [],
+  };
+};
+
+//Thunk
+const thunkGetDataFun = (status) => {
+  return (dispatch, getState) => {
+    axios.get(`https://jsonplaceholder.typicode.com/posts`).then((result) => {
+      console.log(status,getState());
+      console.log("Data fetched", result.data);
+      dispatch({ type: SET_DATA, data: result.data });
+    });
   };
 };
 
@@ -63,7 +74,7 @@ const mapDispatchToProps = (dispatch) => {
       dispatch({ type: POP });
     },
     setData: (result) => {
-      dispatch({ type: "setData", data: result });
+      dispatch(thunkGetDataFun("Thunk function called"));
     },
     removeData: () => {
       console.log("inside remove");
